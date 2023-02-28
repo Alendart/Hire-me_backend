@@ -7,7 +7,7 @@ const simpleUser = {
 
 const badUser = {
     name: "Abc",
-    pwd: 123,
+    pwd: "xxx",
 }
 
 
