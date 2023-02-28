@@ -4,6 +4,6 @@ export interface UserEntity {
     pwd: string;
 }
 
-export interface NewUserEntity extends UserEntity {
+export interface NewUserEntity extends Omit<UserEntity, "id"> {
     id?: string
 }
