@@ -1,34 +1,66 @@
 import {NewUserEntity, UserEntity} from "../types";
 import {ValidationError} from "../utils/error";
 import {v4 as uuid} from "uuid"
+import {hashPassword} from "../utils/hash";
+import {db} from "../utils/db";
+import {FieldPacket} from "mysql2";
 
+type UserRecordResult = [UserEntity[], FieldPacket[]];
 
 export class UserRecord implements UserEntity {
     id: string;
-    name: string;
+    login: string;
     pwd: string;
 
     constructor(obj: NewUserEntity) {
         this.userValidation(obj);
 
         this.id = obj.id ?? uuid();
-        this.name = obj.name;
+        this.login = obj.login;
         this.pwd = obj.pwd;
     }
 
-    static async findOne() {
+    static async loginValidation(login: string): Promise<string | void> {
+        const [result] = await db.execute("SELECT * FROM `users` WHERE `login`=:login", {
+            login
+        }) as UserRecordResult;
 
+        if (result[0] === undefined) {
+            return "ok"
+        }
+        throw new ValidationError("Login jest zajęty! Proszę wpisać inny")
     }
 
-    async addUser() {
+    static async findOne(login: string): Promise<UserRecord | null> {
+        const [result] = await db.execute("SELECT * FROM `users` WHERE `login`=:login", {
+            login,
+        }) as UserRecordResult;
 
+        return result[0] ? new UserRecord(result[0]) : null;
+    }
+
+    async addUser(): Promise<string | void> {
+        const check = await UserRecord.loginValidation(this.login);
+        if (check === "ok") {
+            this.pwd = await hashPassword(this.pwd);
+            console.log(this.pwd);
+
+            await db.execute("INSERT INTO `users` (`id`,`login`,`pwd`) VALUES (:id,:login,:pwd)", {
+                id: this.id,
+                login: this.login,
+                pwd: this.pwd,
+            })
+
+            return this.id
+        }
     }
 
     private userValidation(obj: NewUserEntity): void {
-        if (obj.name.length > 12 || obj.name.length < 4) {
-            throw new ValidationError("Nazwa użytkownika musi zawierać od 4 do 12 znaków")
+
+        if (obj.login.length > 20 || obj.login.length < 4) {
+            throw new ValidationError("Nazwa użytkownika musi zawierać od 4 do 20 znaków")
         }
-        if (typeof obj.name !== "string") {
+        if (typeof obj.login !== "string") {
             throw new ValidationError("Wygląda na to, że hasło użytkownika nie jest tekstem... Niespodziewaliśmy się" +
                 " tego, spróbuj ponownie później.");
         }
@@ -40,5 +72,6 @@ export class UserRecord implements UserEntity {
                 " tego, spróbuj ponownie później.");
         }
     }
+
 
 }
