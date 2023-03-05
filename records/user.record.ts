@@ -1,7 +1,7 @@
 import {NewUserEntity, UserEntity} from "../types";
 import {ValidationError} from "../utils/error";
 import {v4 as uuid} from "uuid"
-import {hashPassword} from "../utils/hash";
+import {compareHash, hashPassword} from "../utils/hash";
 import {db} from "../utils/db";
 import {FieldPacket} from "mysql2";
 
@@ -39,6 +39,15 @@ export class UserRecord implements UserEntity {
         return result[0] ? new UserRecord(result[0]) : null;
     }
 
+    static async checkPwd(login: string, pwd: string): Promise<boolean> {
+        const user = await UserRecord.findOne(login);
+        if (user) {
+            return compareHash(pwd, user.pwd)
+        } else {
+            return false
+        }
+    }
+
     async addUser(): Promise<string | void> {
         const check = await UserRecord.loginValidation(this.login);
         if (check === "ok") {
@@ -54,6 +63,7 @@ export class UserRecord implements UserEntity {
             return this.id
         }
     }
+
 
     private userValidation(obj: NewUserEntity): void {
 
