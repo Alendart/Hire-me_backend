@@ -39,6 +39,14 @@ export class UserRecord implements UserEntity {
         return result[0] ? new UserRecord(result[0]) : null;
     }
 
+    static async findOneById(id: string): Promise<boolean> {
+        const [result] = await db.execute("SELECT * FROM `users` WHERE `id`=:id", {
+            id,
+        }) as UserRecordResult;
+
+        return !!result[0];
+    }
+
     static async checkPwd(login: string, pwd: string): Promise<boolean> {
         const user = await UserRecord.findOne(login);
         if (user) {
@@ -68,10 +76,10 @@ export class UserRecord implements UserEntity {
     private userValidation(obj: NewUserEntity): void {
 
         if (obj.login.length > 20 || obj.login.length < 4) {
-            throw new ValidationError("Nazwa użytkownika musi zawierać od 4 do 20 znaków")
+            throw new ValidationError("Login musi zawierać od 4 do 20 znaków")
         }
         if (typeof obj.login !== "string") {
-            throw new ValidationError("Wygląda na to, że hasło użytkownika nie jest tekstem... Niespodziewaliśmy się" +
+            throw new ValidationError("Wygląda na to, że login użytkownika nie jest tekstem... Niespodziewaliśmy się" +
                 " tego, spróbuj ponownie później.");
         }
         if (obj.pwd.length > 12 || obj.pwd.length < 4) {
