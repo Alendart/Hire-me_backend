@@ -4,6 +4,7 @@ import 'express-async-errors';
 import rateLimit from "express-rate-limit";
 import {userRouter} from "./routers/userRouter";
 import {errorHandler} from "./utils/error";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -11,9 +12,10 @@ app
     .use(cors({
         origin: 'http://localhost:3000',
     }))
+    .use(cookieParser())
     .use(rateLimit({
         windowMs: 5 * 60 * 1000,
-        max: 1000,
+        max: 10000,
     }))
     .use(express.json());
 
