@@ -13,7 +13,6 @@ export class UserRecord implements UserEntity {
     pwd: string;
 
     constructor(obj: NewUserEntity) {
-        this.userValidation(obj);
 
         this.id = obj.id ?? uuid();
         this.login = obj.login;
@@ -49,14 +48,11 @@ export class UserRecord implements UserEntity {
 
     static async checkPwd(login: string, pwd: string): Promise<boolean> {
         const user = await UserRecord.findOne(login);
-        if (user) {
-            return compareHash(pwd, user.pwd)
-        } else {
-            return false
-        }
+        return user ? await compareHash(pwd, user.pwd) : false
     }
 
     async addUser(): Promise<string | void> {
+        this.userValidation(this);
         const check = await UserRecord.loginValidation(this.login);
         if (check === "ok") {
             this.pwd = await hashPassword(this.pwd);
