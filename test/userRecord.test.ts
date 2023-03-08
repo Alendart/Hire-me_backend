@@ -1,15 +1,24 @@
 import {UserRecord} from "../records/user.record";
+import {db} from "../utils/db";
 
 const simpleUser = {
-    name: "Testowy",
+    login: "Testowy",
     pwd: "testoweHasło"
 }
 
 const badUser = {
-    name: "Abc",
+    login: "Abc",
     pwd: "xxx",
 }
 
+const ExistingUser = {
+    login: "testowy",
+    pwd: "123312213"
+}
+
+afterAll(() => {
+    db.end()
+})
 
 test("User return error when bad data are pasted", () => {
 
@@ -23,10 +32,10 @@ test("User properly assign name", () => {
 
     const user = new UserRecord(simpleUser);
 
-    expect(user.name).toBeTruthy();
-    expect(user.name).not.toBeFalsy();
-    expect(user.name).toBeDefined();
-    expect(user.name).toBe(simpleUser.name);
+    expect(user.login).toBeTruthy();
+    expect(user.login).not.toBeFalsy();
+    expect(user.login).toBeDefined();
+    expect(user.login).toBe(simpleUser.login);
 
 
 });
@@ -54,3 +63,32 @@ test("New user receive id after validation", () => {
 
 
 });
+
+test("When login already exist in database record should throw error", async () => {
+
+    const user = new UserRecord(ExistingUser)
+
+    const addUser = async () => await user.addUser()
+
+    await expect(addUser()).rejects.toThrowError();
+
+
+});
+
+test("When searched for non existing login answer should be null ", async () => {
+    const user = await UserRecord.findOne("testxxx")
+
+    expect(user).toBeNull()
+
+});
+
+test("When searched for existing login it should return UserRecord ", async () => {
+    const user = await UserRecord.findOne("test");
+
+    expect(user).toBeDefined();
+    expect(user).toBeInstanceOf(UserRecord);
+    expect(user.login).toBe("test");
+    expect(user.id).toBeDefined();
+    expect(user.pwd).toBeDefined();
+
+})
