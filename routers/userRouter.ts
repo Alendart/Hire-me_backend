@@ -7,14 +7,17 @@ export const userRouter = Router();
 
 userRouter
     .get('/', async (req, res) => {
-        const logged = await UserRecord.findOneById(req.cookies.id)
+        let logged;
+        if (req.cookies.id) {
+            logged = await UserRecord.findOneById(req.cookies.id)
+        }
         res.json(logged ? req.cookies.id : false);
     })
-    .get('/login/check', async (req, res) => {
-        const result = await UserRecord.loginValidation(req.body.login);
+    .get('/login/check/:login', async (req, res) => {
+        const result = await UserRecord.loginValidation(req.params.login);
         res.json(result === "ok");
     })
-    .get("/login", async (req, res) => {
+    .post("/login", async (req, res) => {
         const {login, pwd} = req.body;
         const check = await UserRecord.checkPwd(login, pwd);
         if (check) {
