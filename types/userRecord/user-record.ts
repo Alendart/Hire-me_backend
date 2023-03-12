@@ -7,3 +7,5 @@ export interface UserEntity {
 export interface NewUserEntity extends Omit<UserEntity, "id"> {
     id?: string
 }
+
+export type UserSimpleEntity = Omit<UserEntity, "pwd">

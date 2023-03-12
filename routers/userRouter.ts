@@ -7,11 +7,11 @@ export const userRouter = Router();
 
 userRouter
     .get('/', async (req, res) => {
-        let logged;
+        let userInfo;
         if (req.cookies.id) {
-            logged = await UserRecord.findOneById(req.cookies.id)
+            userInfo = await UserRecord.findOneById(req.cookies.id)
         }
-        res.json(logged ? req.cookies.id : false);
+        res.json(userInfo ?? null);
     })
     .get('/login/check/:login', async (req, res) => {
         const result = await UserRecord.loginValidation(req.params.login);

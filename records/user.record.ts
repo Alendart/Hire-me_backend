@@ -1,4 +1,4 @@
-import {NewUserEntity, UserEntity} from "../types";
+import {NewUserEntity, UserEntity, UserSimpleEntity} from "../types";
 import {ValidationError} from "../utils/error";
 import {v4 as uuid} from "uuid"
 import {compareHash, hashPassword} from "../utils/hash";
@@ -6,6 +6,7 @@ import {db} from "../utils/db";
 import {FieldPacket} from "mysql2";
 
 type UserRecordResult = [UserEntity[], FieldPacket[]];
+type SimpleUserResult = [UserSimpleEntity[], FieldPacket[]]
 
 export class UserRecord implements UserEntity {
     id: string;
@@ -38,12 +39,12 @@ export class UserRecord implements UserEntity {
         return result[0] ? new UserRecord(result[0]) : null;
     }
 
-    static async findOneById(id: string): Promise<boolean> {
-        const [result] = await db.execute("SELECT * FROM `users` WHERE `id`=:id", {
+    static async findOneById(id: string): Promise<UserSimpleEntity | null> {
+        const [result] = await db.execute("SELECT (`id`,`login`) FROM `users` WHERE `id`=:id", {
             id,
-        }) as UserRecordResult;
+        }) as SimpleUserResult;
 
-        return !!result[0];
+        return !!result[0] ? result[0] : null;
     }
 
     static async checkPwd(login: string, pwd: string): Promise<boolean> {
