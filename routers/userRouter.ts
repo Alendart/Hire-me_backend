@@ -7,9 +7,12 @@ export const userRouter = Router();
 
 userRouter
     .get('/', async (req, res) => {
-        let userInfo;
-        if (req.cookies.id) {
-            userInfo = await UserRecord.findOneById(req.cookies.id)
+        let userInfo = null;
+        if (req.cookies.user) {
+            userInfo = await UserRecord.findOneById(req.cookies.user)
+            if (!userInfo) {
+                res.clearCookie("user");
+            }
         }
         res.json(userInfo ?? null);
     })
@@ -22,7 +25,9 @@ userRouter
         const check = await UserRecord.checkPwd(login, pwd);
         if (check) {
             const user = await UserRecord.findOne(login);
-            res.cookie("user", user.id);
+            res.cookie("user", user.id, {
+                httpOnly: true,
+            });
             res.json(true)
         } else {
             res.json(false)

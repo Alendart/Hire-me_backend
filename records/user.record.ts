@@ -40,10 +40,9 @@ export class UserRecord implements UserEntity {
     }
 
     static async findOneById(id: string): Promise<UserSimpleEntity | null> {
-        const [result] = await db.execute("SELECT (`id`,`login`) FROM `users` WHERE `id`=:id", {
+        const [result] = await db.execute("SELECT `id`,`login` FROM `users` WHERE `id`=:id", {
             id,
         }) as SimpleUserResult;
-
         return !!result[0] ? result[0] : null;
     }
 
