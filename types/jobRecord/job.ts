@@ -13,6 +13,7 @@ export interface JobEntity {
 
 export interface NewJobEntity extends Omit<JobEntity, "id" | "jobStatus"> {
     id?: string;
+    jobStatus?: applicationStatus;
 }
 
 export type TableJobEntity = Pick<JobEntity, "id" | "jobName" | "jobStatus">;
