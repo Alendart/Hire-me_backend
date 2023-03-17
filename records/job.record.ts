@@ -1,6 +1,11 @@
-import {applicationStatus, JobEntity, NewJobEntity} from "../types";
+import {applicationStatus, JobEntity, NewJobEntity, TableJobEntity} from "../types";
 import {v4 as uuid} from "uuid"
 import {ValidationError} from "../utils/error";
+import {FieldPacket} from "mysql2/index";
+import {db} from "../utils/db";
+
+type JobRecordResult = [JobEntity[], FieldPacket[]];
+type TableJobResult = [TableJobEntity[], FieldPacket[]]
 
 export class JobRecord implements JobEntity {
     id: string;
@@ -13,6 +18,7 @@ export class JobRecord implements JobEntity {
     jobStatus: applicationStatus;
     fileName: string;
     userID: string;
+    archiveTimeStamp: string | null;
 
     constructor(obj: NewJobEntity) {
         this.validation(obj);
@@ -27,6 +33,7 @@ export class JobRecord implements JobEntity {
         this.jobStatus = obj.jobStatus ?? applicationStatus.Send;
         this.fileName = obj.fileName;
         this.userID = obj.userID;
+        this.archiveTimeStamp = obj.archiveTimeStamp ?? null
     }
 
     private validation(obj: NewJobEntity) {
@@ -55,5 +62,73 @@ export class JobRecord implements JobEntity {
                 " serwisu jeżeli problem się powtórzy")
         }
     }
+
+    static async findOne(id: string, userId: string): Promise<JobEntity | null> {
+
+        const [result] = await db.execute('SELECT * FROM `jobs` WHERE `id` = :id AND `userId` = :userId', {
+            id,
+            userId,
+        }) as JobRecordResult
+
+        return result[0] ? new JobRecord(result[0]) : null
+    }
+
+    static async countAll(): Promise<number> {
+
+        return
+    }
+
+    static async findAllActive(userId: string): Promise<TableJobEntity[]> {
+        const [result] = await db.execute('SELECT `id`,`jobName`,`jobStatus` FROM `jobs` WHERE `userId` = :userId', {
+            userId,
+        }) as JobRecordResult
+
+        return result[0] ? result.map(e => new JobRecord(e)) : null
+    }
+
+    static async findAllArchive(userId: string): Promise<TableJobEntity[]> {
+        const [result] = await db.execute('SELECT `id`,`jobName`,`jobStatus` FROM `jobs` WHERE `jobStatus` = "Zarchiwizowane" AND + `userId` = :userId', {
+            userId,
+        }) as JobRecordResult
+
+        return result[0] ? result.map(e => new JobRecord(e)) : null
+    }
+
+    static async findLastArchived(userId: string): Promise<TableJobEntity | null> {
+        const [result] = await db.execute('SELECT `id`,`jobName`,`jobStatus` FROM `jobs` WHERE `jobStatus` =' +
+            ' "Zarchiwizowane" AND + `userId` = :userId ORDER BY `archiveTimeStamp` DESC', {
+            userId,
+        }) as JobRecordResult
+
+        return result[0] ? result[0] : null
+    }
+
+    async insert(): Promise<string> {
+
+
+        return
+    }
+
+    async updateStatus(status: applicationStatus, userId: string): Promise<applicationStatus> {
+        const res = await db.execute('UPDATE `jobs` SET `jobStatus`=:status WHERE `id`=:id AND `userId` = :userId', {
+            status,
+            id: this.id,
+            userId,
+        })
+        return
+    }
+
+    async setArchive(userId: string): Promise<void> {
+        const date = new Date().toLocaleString('en-GB', {timeZone: 'UTC'})
+
+        await db.execute('UPDATE `jobs` SET `jobStatus` = :status , `archiveTimeStamp` = :date  WHERE id' +
+            ' = :id AND `userID`=:userID', {
+            status: applicationStatus.Archived,
+            date,
+            id: this.id,
+            userId
+        })
+    }
+
 
 }

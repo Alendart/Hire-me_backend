@@ -9,11 +9,13 @@ export interface JobEntity {
     jobStatus: applicationStatus;
     fileName: string;
     userID: string;
+    archiveTimeStamp: string | null;
 }
 
-export interface NewJobEntity extends Omit<JobEntity, "id" | "jobStatus"> {
+export interface NewJobEntity extends Omit<JobEntity, "id" | "jobStatus" | "archiveTimeStamp"> {
     id?: string;
     jobStatus?: applicationStatus;
+    archiveTimeStamp?: string | null;
 }
 
 export type TableJobEntity = Pick<JobEntity, "id" | "jobName" | "jobStatus">;
@@ -27,4 +29,5 @@ export enum applicationStatus {
     Appointment = "Zaplanowano spotkanie",
     Accepted = "Zaakceptowane",
     Refused = "Odrzucone",
+    Archived = "Zarchiwizowane",
 }
