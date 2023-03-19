@@ -17,7 +17,7 @@ export class JobRecord implements JobEntity {
     lon: number;
     jobStatus: applicationStatus;
     fileName: string;
-    userID: string;
+    userId: string;
     archiveTimeStamp: string | null;
 
     constructor(obj: NewJobEntity) {
@@ -32,7 +32,7 @@ export class JobRecord implements JobEntity {
         this.lon = Number(obj.lon);
         this.jobStatus = obj.jobStatus ?? applicationStatus.Send;
         this.fileName = obj.fileName;
-        this.userID = obj.userID;
+        this.userId = obj.userId;
         this.archiveTimeStamp = obj.archiveTimeStamp ?? null
     }
 
@@ -57,7 +57,7 @@ export class JobRecord implements JobEntity {
         if (obj.fileName.length > 20 || obj.fileName.length < 4) {
             throw new ValidationError("Nazwa pliku musi mieć od 4 do 20 znaków")
         }
-        if (obj.userID.length !== 36) {
+        if (obj.userId.length !== 36) {
             throw new ValidationError("Id użytkownika nie jest poprawne, proszę skontaktować się z administracją" +
                 " serwisu jeżeli problem się powtórzy")
         }

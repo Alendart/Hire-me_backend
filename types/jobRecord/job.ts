@@ -8,7 +8,7 @@ export interface JobEntity {
     lon: number;
     jobStatus: applicationStatus;
     fileName: string;
-    userID: string;
+    userId: string;
     archiveTimeStamp: string | null;
 }
 
