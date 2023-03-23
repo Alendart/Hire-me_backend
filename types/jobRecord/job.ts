@@ -12,15 +12,18 @@ export interface JobEntity {
     archiveTimeStamp: string | null;
 }
 
-export interface NewJobEntity extends Omit<JobEntity, "id" | "jobStatus" | "archiveTimeStamp"> {
+export interface NewJobEntity extends Omit<JobEntity,"id" | "jobStatus" | "archiveTimeStamp" | "fileName"> {
     id?: string;
+    fileName?: string;
     jobStatus?: applicationStatus;
     archiveTimeStamp?: string | null;
 }
 
-export type TableJobEntity = Pick<JobEntity, "id" | "jobName" | "jobStatus">;
+export type CreateFormJobEntity = Omit<JobEntity,"userId" | "id" | "jobStatus" | "archiveTimeStamp" | "fileName">;
 
-export type JobGeo = Pick<JobEntity, "id" | "lat" | "lon" | "address">
+export type TableJobEntity = Pick<JobEntity,"id" | "jobName" | "jobStatus">;
+
+export type JobGeo = Pick<JobEntity,"id" | "lat" | "lon" | "address">
 
 
 export enum applicationStatus {
