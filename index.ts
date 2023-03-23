@@ -5,6 +5,7 @@ import rateLimit from "express-rate-limit";
 import {userRouter} from "./routers/userRouter";
 import {errorHandler} from "./utils/error";
 import cookieParser from "cookie-parser";
+import {jobRouter} from "./routers/jobRouter";
 
 const app = express();
 
@@ -23,7 +24,8 @@ app
 // express Routers....
 
 app
-    .use('/user', userRouter)
+    .use('/user',userRouter)
+    .use('/apply',jobRouter)
 
 // express error handling
 app.use(errorHandler)
