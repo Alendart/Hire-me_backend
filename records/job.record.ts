@@ -115,8 +115,8 @@ export class JobRecord implements JobEntity {
     }
 
     private validation(obj: NewJobEntity) {
-        if (typeof obj.jobName !== "string" || obj.jobName.length < 5 || obj.jobName.length > 30) {
-            throw new ValidationError("Nazwa musi mieć od 5 do 30 znaków")
+        if (typeof obj.jobName !== "string" || obj.jobName.length < 5 || obj.jobName.length > 50) {
+            throw new ValidationError("Nazwa musi mieć od 5 do 50 znaków")
         }
         if (typeof obj.jobDesc !== "string" || obj.jobDesc.length > 10000 || obj.jobDesc.length < 1) {
             throw new ValidationError("Opis nie może być pusty ani przekraczać 10 000 znaków")
@@ -129,13 +129,13 @@ export class JobRecord implements JobEntity {
             throw new ValidationError("Adres nie może być pusty ani mieć więcej niż 100 znaków");
         }
         if (isNaN(obj.lat) || isNaN(obj.lon)) {
-            throw new ValidationError("Dane geolokacyjne muszą być liczbą. Wystpąpił jakiś wewnętrzny problem,"+" proszę spróbować ponownie później")
+            throw new ValidationError("Dane geolokacyjne muszą być liczbą. Wystpąpił jakiś wewnętrzny problem, proszę spróbować ponownie później")
         }
         // if (obj.fileName.length > 20 || obj.fileName.length < 4) {
         //     throw new ValidationError("Nazwa pliku musi mieć od 4 do 20 znaków")
         // }
         if (obj.userId.length !== 36) {
-            throw new ValidationError("Id użytkownika nie jest poprawne, proszę skontaktować się z administracją"+" serwisu jeżeli problem się powtórzy")
+            throw new ValidationError("Id użytkownika nie jest poprawne, proszę skontaktować się z administracją serwisu jeżeli problem się powtórzy")
         }
     }
 
