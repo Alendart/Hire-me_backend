@@ -7,7 +7,7 @@ export interface JobEntity {
     lat: number;
     lon: number;
     jobStatus: applicationStatus;
-    fileName: string;
+    fileName: string | null;
     userId: string;
     archiveTimeStamp: string | null;
 }

@@ -19,26 +19,16 @@ jobRouter
             lastArchived
         });
     })
-    // Dodanie pliku CV do firmy
-    .post("/cv",async (req,res) => {
-
-
-    })
-    // Pobranie pliku CV po kliknięciu w ikonkę pliku
-    .get("/cv/:id",async (req,res) => {
-
-
-    })
     // Pobranie pełnych danych na temat jednej firmy
     .get("/job/:id",async (req,res) => {
         const jobId: string = req.params.id;
         const userId: string = req.cookies.user;
-        const job = JobRecord.findOne(jobId,userId);
+        const job = await JobRecord.findOne(jobId,userId);
 
         if (job) {
             res.json({job})
         } else {
-            throw new Error("Nie istnieje takie ogłoszenie o pracę lub nie masz do niego dostępu")
+            throw new ValidationError("Nie istnieje takie ogłoszenie o pracę lub nie masz do niego dostępu")
         }
 
     })
