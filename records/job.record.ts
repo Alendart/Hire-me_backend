@@ -16,7 +16,7 @@ export class JobRecord implements JobEntity {
     lat: number;
     lon: number;
     jobStatus: applicationStatus;
-    fileName: string;
+    fileName: string | null;
     userId: string;
     archiveTimeStamp: string | null;
 
@@ -38,21 +38,26 @@ export class JobRecord implements JobEntity {
     }
 
     static async findOne(id: string,userId: string): Promise<JobRecord | null> {
+        if (typeof id === "string" && typeof userId === "string") {
+            const [result] = await db.execute('SELECT * FROM `jobs` WHERE `id` = :id AND `userId` = :userId',{
+                id,
+                userId,
+            }) as JobRecordResult
 
-        const [result] = await db.execute('SELECT * FROM `jobs` WHERE `id` = :id AND `userId` = :userId',{
-            id,
-            userId,
-        }) as JobRecordResult
-
-        return result[0] ? new JobRecord(result[0]) : null
+            return result[0] ? new JobRecord(result[0]) : null
+        }
+        return null
     }
 
     static async findAllActive(userId: string): Promise<TableJobEntity[] | null> {
-        const [result] = await db.execute('SELECT `id`,`jobName`,`jobStatus` FROM `jobs` WHERE `userId` = :userId',{
-            userId,
-        }) as TableJobResult
+        if (typeof userId === "string") {
+            const [result] = await db.execute('SELECT `id`,`jobName`,`jobStatus` FROM `jobs` WHERE `userId` = :userId',{
+                userId,
+            }) as TableJobResult
 
-        return result[0] ? result : null
+            return result[0] ? result : null
+        }
+        return null
     }
 
     static async countAll(): Promise<number> {
@@ -61,19 +66,23 @@ export class JobRecord implements JobEntity {
     }
 
     static async findAllArchive(userId: string): Promise<TableJobEntity[] | null> {
-        const [result] = await db.execute('SELECT `id`,`jobName`,`jobStatus` FROM `jobs` WHERE `jobStatus` = "Zarchiwizowane" AND `userId` = :userId',{
-            userId,
-        }) as TableJobResult
-
-        return result[0] ? result : null
+        if (typeof userId === "string") {
+            const [result] = await db.execute('SELECT `id`,`jobName`,`jobStatus` FROM `jobs` WHERE `jobStatus` = "Zarchiwizowane" AND `userId` = :userId',{
+                userId,
+            }) as TableJobResult
+            return result[0] ? result : null
+        }
+        return null
     }
 
     static async findLastArchived(userId: string): Promise<TableJobEntity | null> {
-        const [result] = await db.execute('SELECT `id`,`jobName`,`jobStatus` FROM `jobs` WHERE `jobStatus`="Zarchiwizowane" AND `userId` = :userId ORDER BY `archiveTimeStamp` DESC',{
-            userId,
-        }) as JobRecordResult
-
-        return result[0] ? result[0] : null
+        if (typeof userId === "string") {
+            const [result] = await db.execute('SELECT `id`,`jobName`,`jobStatus` FROM `jobs` WHERE `jobStatus`="Zarchiwizowane" AND `userId` = :userId ORDER BY `archiveTimeStamp` DESC',{
+                userId,
+            }) as JobRecordResult
+            return result[0] ? result[0] : null
+        }
+        return null
     }
 
     async add(): Promise<string> {
@@ -97,6 +106,15 @@ export class JobRecord implements JobEntity {
     async updateStatus(status: applicationStatus): Promise<void> {
         await db.execute('UPDATE `jobs` SET `jobStatus`=:status WHERE `id`=:id AND `userId` = :userId',{
             status,
+            id: this.id,
+            userId: this.userId,
+        })
+
+    }
+
+    async updateFileName(fileName: string): Promise<void> {
+        await db.execute('UPDATE `jobs` SET `fileName`=:fileName WHERE `id`=:id AND `userId` = :userId',{
+            fileName,
             id: this.id,
             userId: this.userId,
         })
