@@ -6,6 +6,7 @@ import {userRouter} from "./routers/userRouter";
 import {errorHandler} from "./utils/error";
 import cookieParser from "cookie-parser";
 import {jobRouter} from "./routers/jobRouter";
+import {fileRouter} from "./routers/fileRouter";
 
 const app = express();
 
@@ -26,6 +27,7 @@ app
 app
     .use('/user',userRouter)
     .use('/apply',jobRouter)
+    .use('/cv',fileRouter)
 
 // express error handling
 app.use(errorHandler)
