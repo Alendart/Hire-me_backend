@@ -9,6 +9,8 @@ export interface NewFileEntity extends Omit<FileEntity,"id"> {
     id?: number;
 }
 
-export type SimpleFileEntity = Omit<FileEntity,"id" | "userId">
+export type SimpleFileEntity = Omit<FileEntity,"id" | "userId" | "fileName">
+
+export type FileNames = Omit<FileEntity,"id" | "userId">
 
 

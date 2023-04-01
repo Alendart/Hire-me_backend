@@ -1,4 +1,4 @@
-import {FileEntity,NewFileEntity,SimpleFileEntity} from "../types";
+import {FileEntity,FileNames,NewFileEntity,SimpleFileEntity} from "../types";
 import {ValidationError} from "../utils/error";
 import {UserRecord} from "./user.record";
 import {db} from "../utils/db";
@@ -19,8 +19,8 @@ export class FileRecord implements FileEntity {
     }
 
     static async listAllFiles(userId: string): Promise<SimpleFileEntity[] | null> {
-        if (userId) {
-            const [result] = await db.execute('SELECT `fileName`,`userFileName` FROM `file` WHERE `userId` = :userId',{
+        if (typeof userId === "string") {
+            const [result] = await db.execute('SELECT `userFileName` FROM `files` WHERE `userId` = :userId',{
                 userId
             }) as any
 
@@ -28,6 +28,18 @@ export class FileRecord implements FileEntity {
         }
         return null
 
+    }
+
+    static async findOneByName(fileName: string,userId: string): Promise<FileNames | null> {
+        if (typeof fileName === "string" && typeof userId === "string") {
+            const [result] = await db.execute('SELECT `fileName`,`userFileName` FROM `files` WHERE `userId` = :userId AND `userFileName` = :fileName',{
+                userId,
+                fileName,
+            }) as any
+
+            return result[0] ? result[0] : null
+        }
+        return null
     }
 
     async addFile() {
