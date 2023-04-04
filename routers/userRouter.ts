@@ -25,10 +25,10 @@ userRouter
         const check = await UserRecord.checkPwd(login, pwd);
         if (check) {
             const user = await UserRecord.findOne(login);
-            res.cookie("user", user.id, {
+            res.cookie("user",user.id,{
                 httpOnly: true,
             });
-            res.json(true)
+            res.json(user.id)
         } else {
             res.json(false)
         }
@@ -36,6 +36,6 @@ userRouter
     .post('/', async (req, res) => {
         const newUser = new UserRecord(req.body);
         const id = await newUser.addUser();
-        res.cookie('user', id);
+
         res.json(id);
     })

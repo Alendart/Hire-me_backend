@@ -23,10 +23,12 @@ export type CreateFormJobEntity = Omit<JobEntity,"userId" | "id" | "jobStatus" |
 
 export type TableJobEntity = Pick<JobEntity,"id" | "jobName" | "jobStatus">;
 
-export type JobGeo = Pick<JobEntity,"id" | "lat" | "lon" | "address">
+export type MapJobEntity = Pick<JobEntity,"id" | "jobName" | "address" | "lat" | "lon" | "url" | "jobStatus">
 
+export type applicationStatusString = keyof typeof applicationStatus;
 
 export enum applicationStatus {
+    Prepared = "Przygotowane",
     Send = "Wysłano",
     Waiting = "Oczekuje na odpowiedź",
     Appointment = "Zaplanowano spotkanie",

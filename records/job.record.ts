@@ -1,11 +1,12 @@
-import {applicationStatus,JobEntity,NewJobEntity,TableJobEntity} from "../types";
+import {applicationStatus,applicationStatusString,JobEntity,MapJobEntity,NewJobEntity,TableJobEntity} from "../types";
 import {v4 as uuid} from "uuid"
 import {ValidationError} from "../utils/error";
 import {FieldPacket} from "mysql2/index";
 import {db} from "../utils/db";
 
 type JobRecordResult = [JobEntity[], FieldPacket[]];
-type TableJobResult = [TableJobEntity[], FieldPacket[]]
+type TableJobResult = [TableJobEntity[],FieldPacket[]]
+type MapJobResult = [MapJobEntity[],FieldPacket[]]
 
 export class JobRecord implements JobEntity {
     id: string;
@@ -51,7 +52,7 @@ export class JobRecord implements JobEntity {
 
     static async findAllActive(userId: string): Promise<TableJobEntity[] | null> {
         if (typeof userId === "string") {
-            const [result] = await db.execute('SELECT `id`,`jobName`,`jobStatus` FROM `jobs` WHERE `userId` = :userId',{
+            const [result] = await db.execute('SELECT `id`,`jobName`,`jobStatus` FROM `jobs` WHERE `userId` = :userId AND `jobStatus` <> "Zarchiwizowane" ',{
                 userId,
             }) as TableJobResult
 
@@ -60,9 +61,15 @@ export class JobRecord implements JobEntity {
         return null
     }
 
-    static async countAll(): Promise<number> {
+    static async findAllActiveWithMapData(userId: string): Promise<TableJobEntity[] | null> {
+        if (typeof userId === "string") {
+            const [result] = await db.execute('SELECT `id`,`jobName`, `address` , `lat` , `lon` , `url` ,`jobStatus` FROM `jobs` WHERE `userId` = :userId AND `jobStatus` <> "Zarchiwizowane" ',{
+                userId,
+            }) as MapJobResult
 
-        return
+            return result[0] ? result : null
+        }
+        return null
     }
 
     static async findAllArchive(userId: string): Promise<TableJobEntity[] | null> {
@@ -103,13 +110,26 @@ export class JobRecord implements JobEntity {
         return this.id
     }
 
-    async updateStatus(status: applicationStatus): Promise<void> {
-        await db.execute('UPDATE `jobs` SET `jobStatus`=:status WHERE `id`=:id AND `userId` = :userId',{
-            status,
+    async updateStatus(statusString: applicationStatusString): Promise<void> {
+        if (applicationStatus[statusString] === applicationStatus.Archived) {
+            await this.setArchive();
+        } else {
+            await db.execute('UPDATE `jobs` SET `jobStatus`=:status WHERE `id`=:id AND `userId` = :userId',{
+                status: applicationStatus[statusString],
+                id: this.id,
+                userId: this.userId,
+            })
+        }
+    }
+
+    private async setArchive(): Promise<void> {
+        const date = new Date().toLocaleString('en-GB',{timeZone: 'UTC'})
+        await db.execute('UPDATE `jobs` SET `jobStatus` = :status , `archiveTimeStamp` = :date  WHERE `id` = :id AND `userId`=:userId',{
+            status: applicationStatus.Archived,
+            date: date,
             id: this.id,
             userId: this.userId,
         })
-
     }
 
     async updateFileName(fileName: string): Promise<void> {
@@ -121,16 +141,6 @@ export class JobRecord implements JobEntity {
 
     }
 
-    async setArchive(): Promise<void> {
-        const date = new Date().toLocaleString('en-GB',{timeZone: 'UTC'})
-
-        await db.execute('UPDATE `jobs` SET `jobStatus` = :status , `archiveTimeStamp` = :date  WHERE id'+' = :id AND `userID`=:userID',{
-            status: applicationStatus.Archived,
-            date,
-            id: this.id,
-            userId: this.userId,
-        })
-    }
 
     private validation(obj: NewJobEntity) {
         if (typeof obj.jobName !== "string" || obj.jobName.length < 5 || obj.jobName.length > 50) {

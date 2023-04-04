@@ -9,16 +9,21 @@ import {ValidationError} from "../utils/error";
 export const jobRouter = Router();
 
 jobRouter
-    // Zwrócenie listy wszystkich niezarchiwizowanych aplikacji w uproszczonej formie oraz ostatniego zarchiwizowanego zgłoszenia
+    // Zwrócenie listy wszystkich niezarchiwizowanych aplikacji w uproszczonej formie
     .get("/",async (req,res) => {
         const userId: string = req.cookies.user;
         const list = await JobRecord.findAllActive(userId);
-        const lastArchived = await JobRecord.findLastArchived(userId);
-        res.json({
-            list,
-            lastArchived
-        });
+
+        res.json(list);
     })
+
+    .get("/map",async (req,res) => {
+        const userId: string = req.cookies.user;
+        const list = await JobRecord.findAllActiveWithMapData(userId)
+
+        res.json(list);
+    })
+
     // Pobranie pełnych danych na temat jednej firmy
     .get("/job/:id",async (req,res) => {
         const jobId: string = req.params.id;
@@ -68,6 +73,12 @@ jobRouter
     })
     // Pobranie listy wszystkich zarchiwizowanych w uproszczonej formie
     .get("/archive",async (req,res) => {
+        const userId: string = req.cookies.user;
+        const list = await JobRecord.findLastArchived(userId);
+        res.json(list);
+    })
+    // Pobranie ostatniego zarchiwizowanego zgłoszenia w uproszczonej formie
+    .get("/archive/all",async (req,res) => {
         const userId: string = req.cookies.user;
         const list = await JobRecord.findAllArchive(userId);
         res.json(list)
