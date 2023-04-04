@@ -1,4 +1,4 @@
-import {applicationStatus, JobEntity, NewJobEntity} from "../types";
+import {applicationStatus,JobEntity,NewJobEntity} from "../types";
 import {db} from "../utils/db";
 import {JobRecord} from "../records/job.record";
 
@@ -12,7 +12,7 @@ const simpleJob: NewJobEntity = {
     lat: 12.333456,
     lon: -5.12345,
     fileName: "testoweCV.pdf",
-    userID: "a84f7625-9411-45c6-ad60-0aada4aa6544"
+    userId: "a84f7625-9411-45c6-ad60-0aada4aa6544"
 
 }
 
@@ -26,7 +26,8 @@ const simpleJob2: JobEntity = {
     lon: -5.12345,
     jobStatus: applicationStatus.Send,
     fileName: "testoweCV.pdf",
-    userID: "1234"
+    userId: "1234",
+    archiveTimeStamp: ''
 
 }
 
@@ -54,7 +55,7 @@ test("New record of job should properly name all parameters", () => {
     expect(job.lon).toBe(simpleJob.lon);
 
     expect(job.fileName).toBe(simpleJob.fileName);
-    expect(job.userID).toBe(simpleJob.userID);
+    expect(job.userId).toBe(simpleJob.userId);
 
 
 });
