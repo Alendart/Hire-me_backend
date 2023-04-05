@@ -7,12 +7,13 @@ import {errorHandler} from "./utils/error";
 import cookieParser from "cookie-parser";
 import {jobRouter} from "./routers/jobRouter";
 import {fileRouter} from "./routers/fileRouter";
+import {config} from "./config/config";
 
 const app = express();
 
 app
     .use(cors({
-        origin: 'http://localhost:3000',
+        origin: config.corsOrigin,
         credentials: true,
     }))
     .use(cookieParser())
