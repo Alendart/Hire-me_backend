@@ -75,7 +75,7 @@ jobRouter
     .get("/archive",async (req,res) => {
         const userId: string = req.cookies.user;
         const list = await JobRecord.findLastArchived(userId);
-        res.json(list);
+        res.json([list]);
     })
     // Pobranie ostatniego zarchiwizowanego zgłoszenia w uproszczonej formie
     .get("/archive/all",async (req,res) => {

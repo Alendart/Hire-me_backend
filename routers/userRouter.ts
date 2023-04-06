@@ -33,9 +33,14 @@ userRouter
             res.json(false)
         }
     })
-    .post('/', async (req, res) => {
+    .post('/',async (req,res) => {
         const newUser = new UserRecord(req.body);
         const id = await newUser.addUser();
 
         res.json(id);
+    })
+    .get('/logout',(req,res) => {
+        res.clearCookie("user");
+        res.status(200);
+        res.end();
     })

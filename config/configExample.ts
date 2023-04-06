@@ -3,4 +3,5 @@ const config = {
     user: "",
     database: '',
     password: '',
+    corsOrigin: '',
 }
